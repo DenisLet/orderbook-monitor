@@ -94,7 +94,7 @@ def market_snap(mid):
         "best_bid":    best_bid,
         "best_ask":    best_ask,
         "mid_price":   mid_price,
-        "spread":      round(best_ask - best_bid, 1) if (best_bid and best_ask) else None,
+        "spread":      round(best_ask - best_bid, 1) if (best_bid and best_ask and best_ask != best_bid) else None,
         "orderbook":   ob,
         "trade_count": trade_count,
         "volume":      volume,
@@ -565,6 +565,10 @@ header{display:flex;align-items:center;gap:10px;padding:12px 0 18px;border-botto
 .ob-asks-wrap{overflow-y:auto;max-height:220px;display:flex;flex-direction:column-reverse}
 .ob-bids-wrap{overflow-y:auto;max-height:220px}
 .ob-row{display:grid;grid-template-columns:52px 1fr 1fr 1fr;padding:4px 12px;transition:background .15s;cursor:pointer;position:relative}
+.ask-row{border-left:2px solid rgba(255,61,90,.4)}
+.bid-row{border-left:2px solid rgba(0,214,143,.4)}
+.ask-row:hover{background:rgba(255,61,90,.08)!important;border-left-color:var(--ask)}
+.bid-row:hover{background:rgba(0,214,143,.08)!important;border-left-color:var(--bid)}
 .ob-row:hover{background:var(--s3)}
 .ask-row .p{color:var(--ask)}.bid-row .p{color:var(--bid)}
 /* Depth bar behind each row */
@@ -657,10 +661,31 @@ header{display:flex;align-items:center;gap:10px;padding:12px 0 18px;border-botto
 .ord-cancel:hover{border-color:var(--no);color:var(--no)}
 
 /* ── PORTFOLIO ── */
-.port-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:20px;gap:12px;flex-wrap:wrap}
+.port-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:16px;gap:12px;flex-wrap:wrap}
 .port-bal-block{}
 .port-bal-lbl{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px}
 .port-bal-val{font-family:var(--mono);font-size:30px;font-weight:700;color:var(--yes)}
+/* Portfolio position cards */
+.pcard{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);overflow:hidden;margin-bottom:10px}
+.pcard-head{padding:12px 14px 10px;display:flex;align-items:flex-start;gap:10px;cursor:pointer}
+.pcard-head:hover{background:var(--s2)}
+.pcard-title{font-size:14px;font-weight:700;color:var(--text);flex:1;line-height:1.35}
+.pcard-meta{display:flex;align-items:center;gap:6px;margin-top:3px;font-size:10px;color:var(--text3)}
+.pcard-pnl{font-family:var(--mono);font-size:14px;font-weight:800;white-space:nowrap;text-align:right}
+.pcard-pnl.up{color:var(--yes)}.pcard-pnl.dn{color:var(--no)}.pcard-pnl.flat{color:var(--text3)}
+.pcard-body{padding:0 14px 12px;border-top:1px solid var(--b1)}
+.ppos{display:grid;grid-template-columns:44px 1fr 1fr 1fr auto;gap:8px;align-items:center;padding:10px 0;border-bottom:1px solid var(--b1)}
+.ppos:last-child{border:none}
+.ppos-lbl{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:3px}
+.ppos-val{font-family:var(--mono);font-weight:700;font-size:13px;color:var(--text)}
+.ppos-val.up{color:var(--yes)}.ppos-val.dn{color:var(--no)}.ppos-val.flat{color:var(--text3)}
+.pord-row{display:flex;align-items:center;gap:8px;padding:7px 0;font-size:11px;border-bottom:1px solid var(--b1);color:var(--text2)}
+.pord-row:last-child{border:none}
+.port-empty-pos{color:var(--text3);font-size:10px;padding:8px 0;font-family:var(--mono)}
+.port-total-bar{display:flex;align-items:center;gap:16px;padding:12px 16px;background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);margin-bottom:16px;flex-wrap:wrap}
+.port-total-item{text-align:center}
+.port-total-lbl{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px}
+.port-total-val{font-family:var(--mono);font-size:18px;font-weight:800;color:var(--text)}
 .port-stats{display:flex;gap:10px;flex-wrap:wrap}
 .port-stat{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r2);padding:8px 14px;text-align:center}
 .port-stat-lbl{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px}
@@ -710,6 +735,38 @@ header{display:flex;align-items:center;gap:10px;padding:12px 0 18px;border-botto
 /* ── NO USER HINT ── */
 .no-user-hint{background:var(--purple2);border:1px solid var(--purple3);border-radius:var(--r2);padding:10px 14px;font-size:11px;color:var(--purple);font-weight:600;margin-bottom:16px;display:none}
 .no-user-hint.visible{display:block}
+/* Simulation panel */
+.sim-panel{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+@media(max-width:600px){.sim-panel{grid-template-columns:1fr}}
+.sim-card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:14px}
+.sim-card-t{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:10px}
+.sim-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;font-size:11px}
+.sim-row:last-child{margin-bottom:0}
+.sim-inp{width:70px;background:var(--s2);border:1px solid var(--b2);border-radius:var(--r3);color:var(--text);font-family:var(--mono);font-size:12px;padding:4px 7px;outline:none;text-align:right}
+.sim-inp:focus{border-color:var(--purple)}
+.sim-toggle{display:flex;align-items:center;gap:8px}
+.sim-switch{position:relative;width:36px;height:20px;flex-shrink:0}
+.sim-switch input{opacity:0;width:0;height:0}
+.sim-slider{position:absolute;cursor:pointer;inset:0;background:var(--b2);border-radius:20px;transition:.3s}
+.sim-slider:before{content:'';position:absolute;width:14px;height:14px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s}
+.sim-switch input:checked+.sim-slider{background:var(--purple)}
+.sim-switch input:checked+.sim-slider:before{transform:translateX(16px)}
+.sim-status{display:flex;align-items:center;gap:6px;padding:8px 12px;background:var(--s2);border:1px solid var(--b1);border-radius:var(--r2);font-size:10px;font-family:var(--mono)}
+.sim-dot{width:6px;height:6px;border-radius:50%;background:var(--text3);flex-shrink:0}
+.sim-dot.running{background:var(--yes);box-shadow:0 0 6px var(--yes);animation:pulse 1.2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.sim-log{font-size:10px;color:var(--text3);font-family:var(--mono);margin-top:8px;height:80px;overflow-y:auto;background:var(--s2);border-radius:var(--r3);padding:6px 8px;line-height:1.7}
+.sim-log div{animation:fi .2s}
+.sim-actions{display:flex;gap:8px;margin-top:10px}
+.sim-btn-start{flex:1;padding:9px;border-radius:var(--r2);border:none;cursor:pointer;font-family:var(--mono);font-size:10px;font-weight:700;background:var(--purple);color:#fff;transition:.15s}
+.sim-btn-start:hover{filter:brightness(1.1)}
+.sim-btn-stop{flex:1;padding:9px;border-radius:var(--r2);border:1px solid var(--no);background:transparent;cursor:pointer;font-family:var(--mono);font-size:10px;font-weight:700;color:var(--no);transition:.15s}
+.sim-btn-stop:hover{background:var(--no2)}
+/* Position P&L */
+.pos-pnl{font-family:var(--mono);font-size:10px;font-weight:700;margin-left:auto}
+.pos-pnl.up{color:var(--yes)}.pos-pnl.dn{color:var(--no)}.pos-pnl.flat{color:var(--text3)}
+.pos-sell-btn{padding:5px 12px;border-radius:var(--r2);border:1px solid var(--no);background:var(--no2);color:var(--no);cursor:pointer;font-size:11px;font-family:var(--mono);font-weight:700;transition:.15s;white-space:nowrap}
+.pos-sell-btn:hover{background:var(--no);color:#fff}
 /* Reset button */
 .reset-btn{width:100%;margin-top:14px;padding:10px;border-radius:var(--r2);border:1px solid rgba(255,61,90,.3);background:rgba(255,61,90,.07);color:var(--no);cursor:pointer;font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:1px;transition:.18s}
 .reset-btn:hover{background:rgba(255,61,90,.15);border-color:var(--no)}
@@ -759,9 +816,10 @@ header{display:flex;align-items:center;gap:10px;padding:12px 0 18px;border-botto
 </div>
 
 <div class="tabs">
-  <div class="tab active" id="tab-markets" >Рынки</div>
+  <div class="tab active" id="tab-markets"  >Рынки</div>
   <div class="tab"        id="tab-portfolio">Портфель</div>
   <div class="tab"        id="tab-activity" >Лента</div>
+  <div class="tab"        id="tab-simulate" >🤖 Симуляция</div>
   <div class="tab"        id="tab-create"   >＋ Создать</div>
   <div class="tab"        id="tab-config"   >⚙ Настройки</div>
 </div>
@@ -781,6 +839,85 @@ header{display:flex;align-items:center;gap:10px;padding:12px 0 18px;border-botto
 <div class="panel" id="panel-activity">
   <div class="stitle">Лента сделок</div>
   <div class="alist" id="alist"><div class="empty">Нет событий</div></div>
+</div>
+
+<!-- SIMULATE -->
+<div class="panel" id="panel-simulate">
+  <div class="stitle">🤖 Автоматическая симуляция торговли</div>
+  <div class="sim-status" id="simStatus">
+    <div class="sim-dot" id="simDot"></div>
+    <span id="simStatusTxt">Симуляция остановлена</span>
+    <span style="margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--text3)" id="simTick"></span>
+  </div>
+
+  <div class="sim-panel" style="margin-top:12px">
+    <!-- LEFT: parameters -->
+    <div class="sim-card">
+      <div class="sim-card-t">⚙ Параметры</div>
+      <div class="sim-row">
+        <span style="color:var(--text2)">Рынок</span>
+        <select id="simMarketSel" class="sim-inp" style="width:150px">
+          <option value="ALL">🌐 Все открытые</option>
+        </select>
+      </div>
+      <div class="sim-row">
+        <span style="color:var(--text2)">Интервал (сек)</span>
+        <input type="number" class="sim-inp" id="simInterval" value="1.5" min="0.3" max="10" step="0.1">
+      </div>
+      <div class="sim-row">
+        <span style="color:var(--text2)">Размер ордера ($)</span>
+        <input type="number" class="sim-inp" id="simOrderSize" value="80" min="5" max="1000">
+      </div>
+      <div class="sim-row">
+        <span style="color:var(--text2)">Агрессивность</span>
+        <select id="simAggression" class="sim-inp">
+          <option value="passive">Пассивный (лимит)</option>
+          <option value="mixed" selected>Смешанный</option>
+          <option value="aggressive">Агрессивный (маркет)</option>
+        </select>
+      </div>
+      <div class="sim-row">
+        <span style="color:var(--text2)">Разброс цены (¢)</span>
+        <input type="number" class="sim-inp" id="simSpread" value="4" min="1" max="20">
+      </div>
+      <div class="sim-row">
+        <span style="color:var(--text2)">Дрейф цены</span>
+        <div class="sim-toggle">
+          <label class="sim-switch"><input type="checkbox" id="simDrift" checked><span class="sim-slider"></span></label>
+          <span style="font-size:10px;color:var(--text3)" id="simCenterLbl"></span>
+        </div>
+      </div>
+      <div class="sim-row" id="simCenterRow">
+        <span style="color:var(--text2)">Целевая цена (¢)</span>
+        <input type="number" class="sim-inp" id="simCenterPrice" value="50" min="5" max="95" step="1">
+      </div>
+    </div>
+    <!-- RIGHT: bots -->
+    <div class="sim-card">
+      <div class="sim-card-t">👥 Боты-участники</div>
+      <div id="simBotList" style="font-size:11px;color:var(--text3);margin-bottom:8px;max-height:160px;overflow-y:auto">Загрузка…</div>
+      <div style="border-top:1px solid var(--b1);padding-top:8px;margin-top:4px">
+        <div class="sim-row">
+          <span style="color:var(--text2);font-size:10px">Баланс бота ($)</span>
+          <input type="number" class="sim-inp" id="simBotBal" value="5000" min="500">
+        </div>
+        <button class="cbtn" id="btnAddBot" style="width:100%;margin-top:8px;font-size:9px;padding:7px">＋ Добавить бота</button>
+      </div>
+      <!-- sim stats -->
+      <div style="border-top:1px solid var(--b1);padding-top:8px;margin-top:8px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;text-align:center">
+        <div><div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:1px">Тиков</div><div style="font-family:var(--mono);font-weight:700;font-size:14px" id="statTicks">0</div></div>
+        <div><div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:1px">Сделок</div><div style="font-family:var(--mono);font-weight:700;font-size:14px;color:var(--yes)" id="statTrades">0</div></div>
+        <div><div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:1px">Объём</div><div style="font-family:var(--mono);font-weight:700;font-size:14px;color:var(--purple)" id="statVol">$0</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sim-actions">
+    <button class="sim-btn-start" id="btnSimStart">▶ Запустить</button>
+    <button class="sim-btn-stop"  id="btnSimStop" style="display:none">■ Стоп</button>
+    <button class="cbtn" id="btnSimBurst" style="font-size:9px;padding:8px 14px;background:var(--gold);color:#000">⚡ Burst x10</button>
+  </div>
+  <div class="sim-log" id="simLog"><div style="color:var(--text3)">Лог симуляции появится здесь…</div></div>
 </div>
 
 <!-- CREATE -->
@@ -908,7 +1045,18 @@ header{display:flex;align-items:center;gap:10px;padding:12px 0 18px;border-botto
             <div class="flbl">Вероятность / цена</div>
             <div class="price-row">
               <input type="number" class="price-inp buy" id="priceInp" min="0.1" max="99.9" step="0.1" value="50">
-              <div class="price-unit">¢&nbsp;/&nbsp;<span id="oddsDisp" style="color:var(--text2)">2.00×</span></div>
+              <div style="display:flex;flex-direction:column;gap:2px">
+                <div style="font-size:9px;color:var(--text3);font-family:var(--mono)">ЦЕНА YES</div>
+                <div class="price-unit">¢&nbsp;<span id="oddsDisp" style="color:var(--text2);font-size:11px">2.00×</span></div>
+              </div>
+            </div>
+            <!-- Secondary price display for SELL: shows what you actually pay (NO price) -->
+            <div id="noPriceRow" style="display:none;margin-top:6px;padding:6px 10px;background:var(--no2);border:1px solid var(--no3);border-radius:var(--r3);font-size:11px;font-family:var(--mono)">
+              <span style="color:var(--text3)">Твоя цена NO: </span>
+              <span id="noPriceVal" style="color:var(--no);font-weight:700;font-size:14px">50¢</span>
+              <span style="color:var(--text3)"> → коэф </span>
+              <span id="noOddsVal" style="color:var(--no);font-weight:700">2.00×</span>
+              <span style="color:var(--text3);font-size:9px;display:block;margin-top:2px">платишь 100 − цена YES = NO цена за контракт</span>
             </div>
             <input type="range" class="pslider buy" id="priceSlider" min="1" max="99" step="1" value="50" style="width:100%;margin-top:6px">
             <div class="pmarkers">
@@ -929,13 +1077,16 @@ header{display:flex;align-items:center;gap:10px;padding:12px 0 18px;border-botto
             </div>
           </div>
           <div class="oprev">
-            <div class="oprev-t">Детали ордера</div>
+            <div class="oprev-t">Твоя ставка</div>
             <div class="opr"><span class="l">Тип</span><span class="v" id="pvType" style="color:var(--yes)">BUY YES</span></div>
-            <div class="opr"><span class="l">Цена</span><span class="v" id="pvPrice">—</span></div>
+            <div class="opr"><span class="l" id="pvPriceLbl">Цена за контракт</span><span class="v" id="pvPrice">—</span></div>
             <div class="opr"><span class="l">Контрактов</span><span class="v" id="pvContracts">—</span></div>
-            <div class="opr"><span class="l">Моя ставка</span><span class="v" id="pvCost">—</span></div>
+            <div class="opr"><span class="l">Вложено</span><span class="v" id="pvCost">—</span></div>
             <div class="opr win"><span class="l">🏆 При победе (после комиссии)</span><span class="v" id="pvWin">—</span></div>
             <div class="opr"><span class="l" style="font-size:9px;color:var(--text3)">Чистая прибыль</span><span class="v" id="pvProfit" style="font-size:11px">—</span></div>
+            <!-- Counterparty info box -->
+            <div id="pvCounterparty" style="margin-top:8px;padding:7px 10px;background:var(--s2);border:1px solid var(--b1);border-radius:var(--r3);font-size:10px;color:var(--text3);line-height:1.8;display:none">
+            </div>
           </div>
           <button class="sub buy" id="subBtn">Разместить ордер BUY</button>
         </div>
@@ -1014,6 +1165,11 @@ var svcBalance=0;
 
 // ── Helpers ───────────────────────────────────────────────────────────
 function fmtBal(v){ return '$'+(v||0).toFixed(2); }
+function fmtVol(v){
+  if(v>=1000000) return '$'+(v/1000000).toFixed(1)+'M';
+  if(v>=1000)    return '$'+(v/1000).toFixed(1)+'k';
+  return '$'+Math.round(v||0);
+}
 function updSvcBalance(v){
   svcBalance=v||0;
   var s=fmtBal(svcBalance);
@@ -1040,11 +1196,11 @@ function connect(){
   ws.onmessage=function(e){
     var m=JSON.parse(e.data);
     if(m.type==='init'){ applyState(m); return; }
-    if(m.type==='markets'){ (m.data||[]).forEach(function(mk){ mkts[mk.id]=mk; }); renderMarkets(); if(curMid&&mkts[curMid]){ renderOB(mkts[curMid]); if(curOrderType==='market') updMktPreview(); } }
-    if(m.type==='users'){ (m.data||[]).forEach(function(u){ usrs[u.id]=u; }); renderHdr(); renderDD(); renderPort(); }
+    if(m.type==='markets'){ (m.data||[]).forEach(function(mk){ mkts[mk.id]=mk; }); renderMarkets(); updateSimMarketSel(); if(curMid&&mkts[curMid]){ renderOB(mkts[curMid]); if(curOrderType==='market') updMktPreview(); } }
+    if(m.type==='users'){ (m.data||[]).forEach(function(u){ usrs[u.id]=u; }); renderHdr(); renderDD(); renderPort(); updateSimBotList(); }
     if(m.type==='activity'){ actLog.unshift(m.data); prependAct(m.data); }
     if(m.type==='reset'){
-      mkts={}; usrs={}; curU=null; curMid=null; actLog=[];
+      stopSim(); mkts={}; usrs={}; curU=null; curMid=null; actLog=[];
       (m.users||[]).forEach(function(u){ usrs[u.id]=u; });
       (m.markets||[]).forEach(function(mk){ mkts[mk.id]=mk; });
       actLog=m.activity||[];
@@ -1080,23 +1236,30 @@ function renderMarkets(){
     var isR=m.status==='resolved';
     var bCls=isR?(m.outcome==='YES'?'ry':'rn'):'open';
     var bTxt=isR?(m.outcome==='YES'?'✓ ДА':'✗ НЕТ'):'Открыто';
-    var lp_num=m.last_price!=null?m.last_price:(m.mid_price!=null?m.mid_price:null);
+    var lp_num=m.last_price!=null?m.last_price:null;  // only real trades, no mid_price
 
     // Коэффициенты
     var lpOdds = lp_num!=null ? calcOdds(lp_num) : null;           // на YES
     var lpOddsNo = lp_num!=null ? calcOdds(100-lp_num) : null;     // на NO
 
-    // BID/ASK с коэффициентами
-    var bidP = m.best_bid;
-    var askP = m.best_ask;
-    var bidOdds = bidP!=null ? calcOdds(bidP) : null;              // YES коэф для покупателя
-    var askOdds = askP!=null ? calcOdds(100-askP) : null;          // NO коэф для продавца
+    // BID = лучший покупатель YES, ASK = лучший продавец YES
+    // Для пользователя:
+    //   Купить YES → исполнится по лучшему ASK → коэф 100/askP
+    //   Купить NO  → исполнится по лучшему BID → коэф 100/(100-bidP)
+    var bidP = m.best_bid;   // highest buyer of YES
+    var askP = m.best_ask;   // lowest seller of YES
 
-    var bidHtml = bidP!=null
-      ? '<div class="mc-ba-val">'+bidP+'¢</div><div class="mc-ba-odds">'+bidOdds+' YES</div>'
+    // "Купить YES" — ты берёшь лучший ASK
+    var buyYesOdds = askP!=null ? calcOdds(askP) : null;
+    // "Купить NO"  — ты берёшь лучший BID (продаёшь YES, платишь 100-bidP за NO)
+    var buyNoOdds  = bidP!=null ? calcOdds(100-bidP) : null;
+    var buyNoPrice = bidP!=null ? Math.round((100-bidP)*10)/10 : null;
+
+    var bidHtml = askP!=null
+      ? '<div class="mc-ba-val">'+askP+'¢ YES</div><div class="mc-ba-odds">'+buyYesOdds+'</div>'
       : '<div class="mc-ba-val">—</div>';
-    var askHtml = askP!=null
-      ? '<div class="mc-ba-val">'+askP+'¢</div><div class="mc-ba-odds">'+askOdds+' NO</div>'
+    var askHtml = bidP!=null
+      ? '<div class="mc-ba-val">'+buyNoPrice+'¢ NO</div><div class="mc-ba-odds">'+buyNoOdds+'</div>'
       : '<div class="mc-ba-val">—</div>';
 
     var d=document.createElement('div');
@@ -1107,17 +1270,22 @@ function renderMarkets(){
         '<div class="mc-title">'+m.title+'</div>'+
         '<div class="mc-price">'+
           '<div class="mc-pval">'+(lp_num!=null?lp_num:'—')+'</div>'+
-          '<div style="display:flex;flex-direction:column;gap:1px">'+
-            '<div class="mc-punit">¢&nbsp;<span style="color:var(--text2);font-size:10px">'+(lpOdds?lpOdds+' YES':'')+'</span></div>'+
-            '<div style="font-size:9px;color:var(--text3)">'+(lp_num!=null?'~'+lp_num+'% вероятность':'Нет сделок')+'</div>'+
-            (lpOddsNo&&lp_num!=null?'<div style="font-size:9px;color:var(--text3)">'+lpOddsNo+' на NO</div>':'')+'</div>'+
+          '<div style="display:flex;flex-direction:column;gap:2px">'+
+            '<div class="mc-punit">¢</div>'+
+            '<div style="font-size:9px;color:var(--text3);white-space:nowrap">'+
+              (lp_num!=null?'последняя сделка':'нет сделок')+
+            '</div>'+
+            (m.spread!=null&&m.spread>0?'<div style="font-size:9px;color:var(--gold)">спред '+m.spread+'¢</div>':''+
+            (m.best_bid&&m.best_ask&&m.best_bid===m.best_ask?'<div style="font-size:9px;color:var(--text3)">спред 0¢ (равновесие)</div>':'')+
+            '')+
+          '</div>'+
         '</div>'+
         '<div class="mc-ba">'+
-          '<div class="mc-bid"><div class="mc-ba-lbl">BID (YES)</div>'+bidHtml+'</div>'+
-          '<div class="mc-ask"><div class="mc-ba-lbl">ASK (NO)</div>'+askHtml+'</div>'+
+          '<div class="mc-bid"><div class="mc-ba-lbl">▲ КУПИТЬ YES</div>'+bidHtml+'</div>'+
+          '<div class="mc-ask"><div class="mc-ba-lbl">▼ КУПИТЬ NO</div>'+askHtml+'</div>'+
         '</div>'+
       '</div>'+
-      '<div class="mc-foot"><span>'+m.trade_count+' сделок · $'+m.volume.toFixed(0)+'</span><span>'+m.created_at+'</span></div>';
+      '<div class="mc-foot"><span>'+m.trade_count+' сделок · '+fmtVol(m.volume)+'</span><span>'+m.created_at+'</span></div>';
     if(!isR){
       d.addEventListener('click',function(){ openMarket(m.id); });
     }
@@ -1130,6 +1298,8 @@ function openMarket(mid){
   if(!curU){ toast('Выберите участника','err'); return; }
   curMid=mid;
   document.getElementById('mktOvl').classList.add('open');
+  selSide('BUY');          // always reset to BUY on open
+  setOrderType('limit');   // always reset to limit tab
   refreshDetail();
 }
 
@@ -1191,7 +1361,7 @@ function renderOB(m){
 
   function makeRow(r, side){
     var cls = side==='ask' ? 'ob-row ask-row' : 'ob-row bid-row';
-    var fn  = side==='ask' ? 'SELL' : 'BUY';
+    var fn  = side==='ask' ? 'BUY' : 'SELL';  // click ASK → you BUY; click BID → you SELL
     var barW = Math.round(r.dollars/maxD*100);
     // detect new/changed price level for flash
     var flashCls = '';
@@ -1208,13 +1378,16 @@ function renderOB(m){
     '</div>';
   }
 
+  // Add column header for asks: clicking = BUY
   asksEl.innerHTML = asksReversed.length
-    ? asksReversed.map(function(r){ return makeRow(r,'ask'); }).join('')
-    : '<div style="padding:8px 12px;font-size:10px;color:var(--text3)">Нет предложений</div>';
+    ? '<div style="padding:3px 12px;font-size:8px;color:var(--ask);font-family:var(--mono);font-weight:700;letter-spacing:1px;opacity:.7">▲ ПРОДАВЦЫ YES — клик чтобы КУПИТЬ</div>'+
+      asksReversed.map(function(r){ return makeRow(r,'ask'); }).join('')
+    : '<div style="padding:8px 12px;font-size:10px;color:var(--text3)">Нет продавцов YES</div>';
 
   bidsEl.innerHTML = bidsWithCumul.length
-    ? bidsWithCumul.map(function(r){ return makeRow(r,'bid'); }).join('')
-    : '<div style="padding:8px 12px;font-size:10px;color:var(--text3)">Нет заявок</div>';
+    ? bidsWithCumul.map(function(r){ return makeRow(r,'bid'); }).join('')+
+      '<div style="padding:3px 12px;font-size:8px;color:var(--bid);font-family:var(--mono);font-weight:700;letter-spacing:1px;opacity:.7">▼ ПОКУПАТЕЛИ YES — клик чтобы ПРОДАТЬ</div>'
+    : '<div style="padding:8px 12px;font-size:10px;color:var(--text3)">Нет покупателей YES</div>';
 
   // Update mid strip
   var midLp = document.getElementById('obMidLp');
@@ -1223,9 +1396,10 @@ function renderOB(m){
   var sp=m.spread!=null?' спред: '+m.spread+'¢':'';
   if(lp!=null){
     midLp.textContent=lp+'¢'; midSp.textContent='посл.'+sp;
-  } else if(m.best_bid&&m.best_ask){
-    var mp=Math.round((m.best_bid+m.best_ask)/2);
-    midLp.textContent='~'+mp+'¢'; midSp.textContent='mid'+sp;
+  } else if(m.best_bid||m.best_ask){
+    var mp=m.best_bid&&m.best_ask?Math.round((m.best_bid+m.best_ask)/2*10)/10:null;
+    midLp.textContent=mp!=null?'~'+mp+'¢':'—';
+    midSp.textContent=mp!=null?'mid'+sp:'нет сделок';
   } else {
     midLp.textContent='—'; midSp.textContent='нет сделок';
   }
@@ -1272,20 +1446,43 @@ async function loadMyPositions(){
     var p=await api('/api/portfolio/'+curU);
     var pos=p.positions.find(function(x){ return x.market&&x.market.id===curMid; });
     var posList=document.getElementById('myPosList');
+    var m=mkts[curMid];
+    var curPrice=m?(m.last_price||m.mid_price):null;
     if(!pos||(!pos.yes_contracts&&!pos.no_contracts)){
       posList.innerHTML='<div style="font-size:10px;color:var(--text3)">Нет позиций</div>';
     } else {
       var html='';
-      if(pos.yes_contracts>0)
-        html+='<div class="pos-row"><span class="pos-side yes">YES</span>'+
-          '<span>'+pos.yes_contracts.toFixed(2)+' конт.</span>'+
-          '<span style="color:var(--text3);font-size:10px">затраты $'+pos.yes_cost.toFixed(2)+'</span>'+
-          '<span style="color:var(--yes);font-family:var(--mono);margin-left:auto">при YES: $'+pos.yes_contracts.toFixed(2)+'</span></div>';
-      if(pos.no_contracts>0)
-        html+='<div class="pos-row"><span class="pos-side no">NO</span>'+
-          '<span>'+pos.no_contracts.toFixed(2)+' конт.</span>'+
-          '<span style="color:var(--text3);font-size:10px">затраты $'+pos.no_cost.toFixed(2)+'</span>'+
-          '<span style="color:var(--no);font-family:var(--mono);margin-left:auto">при NO: $'+pos.no_contracts.toFixed(2)+'</span></div>';
+      if(pos.yes_contracts>0){
+        var avgEntry=pos.yes_cost/pos.yes_contracts*100; // cents
+        var curVal=curPrice!=null?pos.yes_contracts*curPrice/100:null;
+        var pnl=curVal!=null?Math.round((curVal-pos.yes_cost)*100)/100:null;
+        var pnlCls=pnl==null?'flat':pnl>0?'up':'dn';
+        var pnlTxt=pnl!=null?(pnl>=0?'+':'')+pnl.toFixed(2)+'$':'—';
+        var bidForSell=m&&m.best_bid?m.best_bid:null; // sell YES = fill BID
+        html+='<div class="pos-row">'+
+          '<span class="pos-side yes">YES</span>'+
+          '<span>'+pos.yes_contracts.toFixed(2)+'c</span>'+
+          '<span style="color:var(--text3);font-size:10px">вход ~'+Math.round(avgEntry)+'¢</span>'+
+          '<span class="pos-pnl '+pnlCls+'">'+pnlTxt+'</span>'+
+          (bidForSell&&m.status==='open'?'<button class="pos-sell-btn" onclick="quickSell(1,'+bidForSell+','+pos.yes_contracts+')">Продать @ '+bidForSell+'¢</button>':'')+
+        '</div>';
+      }
+      if(pos.no_contracts>0){
+        var avgEntryNo=pos.no_cost/pos.no_contracts*100; // NO cents = 100-yesPrice
+        var curPriceNo=curPrice!=null?100-curPrice:null;
+        var curValNo=curPriceNo!=null?pos.no_contracts*curPriceNo/100:null;
+        var pnlNo=curValNo!=null?Math.round((curValNo-pos.no_cost)*100)/100:null;
+        var pnlClsNo=pnlNo==null?'flat':pnlNo>0?'up':'dn';
+        var pnlTxtNo=pnlNo!=null?(pnlNo>=0?'+':'')+pnlNo.toFixed(2)+'$':'—';
+        var askForSell=m&&m.best_ask?m.best_ask:null; // buy back YES = fill ASK to close NO
+        html+='<div class="pos-row">'+
+          '<span class="pos-side no">NO</span>'+
+          '<span>'+pos.no_contracts.toFixed(2)+'c</span>'+
+          '<span style="color:var(--text3);font-size:10px">вход ~'+Math.round(avgEntryNo)+'¢NO</span>'+
+          '<span class="pos-pnl '+pnlClsNo+'">'+pnlTxtNo+'</span>'+
+          (askForSell&&m.status==='open'?'<button class="pos-sell-btn" onclick="quickSell(2,'+askForSell+','+pos.no_contracts+')">Закрыть @ '+askForSell+'¢</button>':'')+
+        '</div>';
+      }
       posList.innerHTML=html;
     }
     var pending=p.pending_orders.filter(function(o){ return o.market_id===curMid; });
@@ -1313,6 +1510,23 @@ async function cancelOrd(oid){
     var r=await api('/api/order/cancel','POST',{order_id:oid,user_id:curU});
     toast('Ордер отменён, возврат '+fmtBal(r.refund),'ok');
     await loadMyPositions();
+  }catch(e){ toast(e.message,'err'); }
+}
+
+// Quick sell / close position at market
+// type: 1 = sell YES (have BUY position), 2 = close NO (have SELL position)
+async function quickSell(type, price, contracts){
+  if(!curU||!curMid) return;
+  var orderSide = type===1 ? 'SELL' : 'BUY';
+  var dollars = type===1
+    ? Math.round(contracts * price / 100 * 100) / 100
+    : Math.round(contracts * (100-price) / 100 * 100) / 100;
+  if(dollars < 0.01){ toast('Слишком маленький объём','err'); return; }
+  try{
+    var d=await api('/api/order','POST',{user_id:curU,market_id:curMid,side:orderSide,price:price,dollars:dollars});
+    var msg=d.trades>0?'✅ Позиция закрыта @ '+price+'¢':'📋 Ордер на закрытие в книге';
+    toast(msg, d.trades>0?'ok':'info');
+    await loadTrades(); await loadMyPositions();
   }catch(e){ toast(e.message,'err'); }
 }
 
@@ -1349,14 +1563,34 @@ function onPriceInpChange(){
 function onPriceChange(){
   var p=getPrice();
   var isB=curSide==='BUY';
+  var noP=Math.round((100-p)*10)/10;  // цена NO = 100 - цена YES
   var inp=document.getElementById('priceInp');
   inp.className='price-inp '+(isB?'buy':'sell');
-  var noProb=Math.round((100-p)*10)/10;
-  var odds=isB?(100/p).toFixed(2):(100/(100-p)).toFixed(2);
-  document.getElementById('oddsDisp').textContent=odds+'×';
-  document.getElementById('priceHint').textContent=isB?
-    'Покупаешь YES по '+p+'¢ → вероятность '+p+'%':
-    'Продаёшь YES по '+p+'¢ → ставишь на NO, вероятность '+noProb+'%';
+
+  // Коэф всегда от СВОЕЙ ставки:
+  // BUY YES:  платишь p¢,      выигрыш $1 → коэф = 100/p
+  // SELL YES: платишь (100-p)¢, выигрыш $1 → коэф = 100/(100-p)
+  var myOdds = isB ? (100/p).toFixed(2) : (100/noP).toFixed(2);
+  document.getElementById('oddsDisp').textContent=myOdds+'×';
+
+  // Show/hide NO price row
+  var noRow=document.getElementById('noPriceRow');
+  if(!isB){
+    noRow.style.display='block';
+    document.getElementById('noPriceVal').textContent=noP+'¢';
+    document.getElementById('noOddsVal').textContent=(100/noP).toFixed(2)+'×';
+  } else {
+    noRow.style.display='none';
+  }
+
+  // Hint
+  if(isB){
+    document.getElementById('priceHint').textContent=
+      'Платишь '+p+'¢ за контракт YES · коэф '+myOdds+' на YES · считаешь вероятность '+p+'%';
+  } else {
+    document.getElementById('priceHint').textContent=
+      'Платишь '+noP+'¢ за контракт NO · коэф '+myOdds+' на NO · считаешь вероятность '+noP+'%';
+  }
   updPreview();
 }
 
@@ -1371,14 +1605,36 @@ function updPreview(){
   var comm=cfg.commission_pct;
   var winNet=Math.round(winGross*(1-comm)*100)/100;
   var profit=Math.round((winNet-dollars)*100)/100;
-  document.getElementById('pvType').textContent=isB?'BUY YES ▲':'SELL YES / BUY NO ▼';
+  var noPrice = Math.round((100-price)*10)/10;
+  var myOdds  = isB ? (100/price).toFixed(2) : (100/noPrice).toFixed(2);
+  document.getElementById('pvType').textContent=isB?'▲ BUY YES':'▼ SELL YES (BUY NO)';
   document.getElementById('pvType').style.color=isB?'var(--yes)':'var(--no)';
-  document.getElementById('pvPrice').textContent=price.toFixed(1)+'¢';
-  document.getElementById('pvContracts').textContent=contracts.toFixed(2)+' конт.';
-  document.getElementById('pvCost').textContent=fmtBal(dollars);
+  // pvPrice label changes meaning: for BUY = YES price, for SELL = NO price (what you actually pay)
+  document.getElementById('pvPrice').textContent=
+    isB ? price.toFixed(1)+'¢ за YES' : noPrice.toFixed(1)+'¢ за NO ('+price.toFixed(1)+'¢ YES)';
+  document.getElementById('pvContracts').textContent=contracts.toFixed(2)+' контр.';
+  document.getElementById('pvCost').textContent=fmtBal(dollars)+' × '+myOdds+' возм.';
   document.getElementById('pvWin').textContent=fmtBal(winNet);
-  document.getElementById('pvProfit').textContent=(profit>=0?'+':'')+profit.toFixed(2)+'$';
+  document.getElementById('pvProfit').textContent=(profit>=0?'+':'')+profit.toFixed(2)+'$ ('+myOdds+' коэф)';
   document.getElementById('pvProfit').style.color=profit>=0?'var(--yes)':'var(--no)';
+
+  // Counterparty explanation
+  var cpBox = document.getElementById('pvCounterparty');
+  if(cpBox){
+    var cpPrice    = isB ? noPrice : price;           // what counterparty pays per contract
+    var cpSide     = isB ? 'NO' : 'YES';
+    var cpOdds     = isB ? (100/noPrice).toFixed(2) : (100/price).toFixed(2);
+    var cpColor    = isB ? 'var(--no)' : 'var(--yes)';
+    var cpWin      = isB ? 'Аргентина НЕ выиграет' : 'Аргентина выиграет';
+    cpBox.style.display = 'block';
+    cpBox.innerHTML =
+      '<span style="font-weight:700;color:var(--text2)">Контрагент (продавец)</span><br>'+
+      'Ставит на <span style="color:'+cpColor+';font-weight:700">'+cpSide+'</span> · '+
+      'платит <span style="font-family:var(--mono);color:'+cpColor+'">'+cpPrice.toFixed(1)+'¢</span> · '+
+      'коэф <span style="font-family:var(--mono);font-weight:700;color:'+cpColor+'">'+cpOdds+'×</span><br>'+
+      '<span style="color:var(--text3)">Считает что '+cpWin+' (вероятность ~'+cpPrice.toFixed(0)+'%)</span><br>'+
+      '<span style="color:var(--text3)">Пот: ваши '+price.toFixed(1)+'¢ + его '+noPrice.toFixed(1)+'¢ = $1 на контракт</span>';
+  }
 }
 
 async function submitOrder(){
@@ -1552,55 +1808,180 @@ async function renderPort(){
   var el=document.getElementById('portContent');
   if(!curU){ el.innerHTML='<div class="empty">Выберите участника</div>'; return; }
   var u=usrs[curU];
-  // Calculate total estimated portfolio value
-  var html='<div class="port-header">'+
-    '<div class="port-bal-block">'+
-      '<div class="port-bal-lbl">Свободный баланс</div>'+
-      '<div class="port-bal-val">'+fmtBal(u.balance)+'</div>'+
-    '</div>'+
-    '<div class="port-stats" id="portStats"></div>'+
-  '</div>';
   try{
     var p=await api('/api/portfolio/'+curU);
-    var totalInvested=0, totalPositions=0;
+    var comm=cfg.commission_pct;
+
+    // ── Aggregate stats ──────────────────────────────────────────────
+    var totalInvested=0, totalPositions=0, totalPnl=0, totalCurVal=0;
     p.positions.forEach(function(pos){
+      var m=pos.market;
+      var curP=m.last_price||m.mid_price;
       totalInvested+=pos.yes_cost+pos.no_cost;
       if(pos.yes_contracts>0||pos.no_contracts>0) totalPositions++;
+      if(curP!=null){
+        var yVal=pos.yes_contracts*curP/100;
+        var nVal=pos.no_contracts*(100-curP)/100;
+        totalCurVal+=yVal+nVal;
+        totalPnl+=(yVal-pos.yes_cost)+(nVal-pos.no_cost);
+      }
     });
-    html=html.replace('<div class="port-stats" id="portStats"></div>',
-      '<div class="port-stats">'+
-        '<div class="port-stat"><div class="port-stat-lbl">Позиций</div><div class="port-stat-val">'+totalPositions+'</div></div>'+
-        '<div class="port-stat"><div class="port-stat-lbl">Вложено</div><div class="port-stat-val" style="color:var(--purple)">'+fmtBal(totalInvested)+'</div></div>'+
-        '<div class="port-stat"><div class="port-stat-lbl">Ждут исп.</div><div class="port-stat-val" style="color:var(--gold)">'+p.pending_orders.length+'</div></div>'+
-      '</div>'
-    );
+    var pnlCls=totalPnl>0.01?'up':totalPnl<-0.01?'dn':'flat';
+
+    var html=
+      // Top summary bar
+      '<div class="port-total-bar">'+
+        '<div class="port-total-item">'+
+          '<div class="port-total-lbl">Свободный баланс</div>'+
+          '<div class="port-total-val" style="color:var(--yes)">'+fmtBal(u.balance)+'</div>'+
+        '</div>'+
+        '<div style="width:1px;background:var(--b1);align-self:stretch"></div>'+
+        '<div class="port-total-item">'+
+          '<div class="port-total-lbl">Вложено в позиции</div>'+
+          '<div class="port-total-val" style="color:var(--purple)">'+fmtBal(totalInvested)+'</div>'+
+        '</div>'+
+        '<div style="width:1px;background:var(--b1);align-self:stretch"></div>'+
+        '<div class="port-total-item">'+
+          '<div class="port-total-lbl">Тек. стоимость</div>'+
+          '<div class="port-total-val">'+( totalCurVal>0?fmtBal(totalCurVal):'—')+'</div>'+
+        '</div>'+
+        '<div style="width:1px;background:var(--b1);align-self:stretch"></div>'+
+        '<div class="port-total-item">'+
+          '<div class="port-total-lbl">Нереализ. P&L</div>'+
+          '<div class="port-total-val '+pnlCls+'">'+(totalInvested>0?(totalPnl>=0?'+':'')+fmtBal(totalPnl):'—')+'</div>'+
+        '</div>'+
+        '<div style="width:1px;background:var(--b1);align-self:stretch"></div>'+
+        '<div class="port-total-item">'+
+          '<div class="port-total-lbl">Ордеров ждёт</div>'+
+          '<div class="port-total-val" style="color:var(--gold)">'+p.pending_orders.length+'</div>'+
+        '</div>'+
+      '</div>';
+
     if(!p.positions.length&&!p.pending_orders.length){
-      html+='<div class="empty" style="padding:24px 0">Нет позиций — откройте рынок и разместите ордер</div>';
-    } else {
-      p.positions.forEach(function(pos){
-        var m=pos.market, isR=m.status==='resolved';
-        html+='<div class="pcard"><div class="pcard-t">'+m.title+'</div>'+
-          '<div class="pcard-m"><span>'+m.category+'</span>'+
-          (isR?'<span style="color:'+(m.outcome==='YES'?'var(--yes)':'var(--no)')+'">'+
-            (m.outcome==='YES'?'✓ YES WIN':'✗ NO WIN')+'</span>':'<span style="color:var(--yes)">● Открыто</span>')+
-          '</div>';
-        if(pos.yes_contracts>0)
-          html+='<div class="pos-row"><span class="pos-side yes">YES</span>'+
-            '<span>'+pos.yes_contracts.toFixed(2)+' конт.</span>'+
-            '<span style="color:var(--text3)">затраты '+fmtBal(pos.yes_cost)+'</span>'+
-            (isR&&m.outcome==='YES'?'<span style="color:var(--yes);margin-left:auto">+'+fmtBal(pos.yes_contracts)+'</span>':'')+
-          '</div>';
-        if(pos.no_contracts>0)
-          html+='<div class="pos-row"><span class="pos-side no">NO</span>'+
-            '<span>'+pos.no_contracts.toFixed(2)+' конт.</span>'+
-            '<span style="color:var(--text3)">затраты '+fmtBal(pos.no_cost)+'</span>'+
-            (isR&&m.outcome==='NO'?'<span style="color:var(--no);margin-left:auto">+'+fmtBal(pos.no_contracts)+'</span>':'')+
-          '</div>';
-        html+='</div>';
-      });
+      html+='<div class="empty" style="padding:32px 0">Нет позиций — откройте рынок и разместите ордер</div>';
+      el.innerHTML=html; return;
     }
-  }catch(e){}
-  el.innerHTML=html;
+
+    // ── Position cards ───────────────────────────────────────────────
+    p.positions.forEach(function(pos){
+      var m=pos.market;
+      var isR=m.status==='resolved';
+      var curP=m.last_price||(m.best_bid&&m.best_ask?(m.best_bid+m.best_ask)/2:null);
+      var invested=pos.yes_cost+pos.no_cost;
+
+      // P&L calculation
+      var curVal=null, pnl=null;
+      if(curP!=null){
+        var yVal=pos.yes_contracts*curP/100;
+        var nVal=pos.no_contracts*(100-curP)/100;
+        curVal=Math.round((yVal+nVal)*100)/100;
+        pnl=Math.round((curVal-invested)*100)/100;
+      }
+      if(isR){
+        // On resolved: actual outcome
+        var win=m.outcome==='YES'?pos.yes_contracts*(1-comm):pos.no_contracts*(1-comm);
+        pnl=Math.round((win-invested)*100)/100;
+        curVal=Math.round(win*100)/100;
+      }
+      var pcls=pnl==null?'flat':pnl>0.01?'up':pnl<-0.01?'dn':'flat';
+      var pnlTxt=pnl!=null?(pnl>=0?'+':'')+fmtBal(pnl):'—';
+      var pnlPct=pnl!=null&&invested>0?' ('+(pnl/invested*100>=0?'+':'')+(pnl/invested*100).toFixed(1)+'%)':'';
+      var statusDot=isR
+        ?(m.outcome==='YES'?'<span style="color:var(--yes);font-weight:700">✓ YES WIN</span>':'<span style="color:var(--no);font-weight:700">✗ NO WIN</span>')
+        :'<span style="color:var(--yes)">● Открыто</span>';
+
+      html+='<div class="pcard">'+
+        // Clickable header → open market
+         '<div class="pcard-head" data-mid="'+m.id+'" onclick="openMarket(this.dataset.mid)">'+  
+          '<div style="flex:1">'+
+            '<div class="pcard-title">'+m.title+'</div>'+
+            '<div class="pcard-meta"><span>'+m.category+'</span><span>·</span>'+statusDot+
+              (curP!=null&&!isR?'<span>· цена '+Math.round(curP*10)/10+'¢</span>':'')+
+            '</div>'+
+          '</div>'+
+          '<div style="text-align:right">'+
+            '<div class="pcard-pnl '+pcls+'">'+pnlTxt+pnlPct+'</div>'+
+            '<div style="font-size:9px;color:var(--text3);margin-top:2px">вложено '+fmtBal(invested)+'</div>'+
+          '</div>'+
+        '</div>'+
+        '<div class="pcard-body">';
+
+      // YES position row
+      if(pos.yes_contracts>0){
+        var yEntry=Math.round(pos.yes_cost/pos.yes_contracts*100*10)/10;
+        var yNow=curP!=null?Math.round(curP*10)/10:null;
+        var yPnl=curP!=null?Math.round((pos.yes_contracts*curP/100-pos.yes_cost)*100)/100:null;
+        var yPcls=yPnl==null?'flat':yPnl>=0?'up':'dn';
+        var bidForSell=m.best_bid;
+        html+=
+          '<div class="ppos">'+
+            '<span class="pos-side yes" style="font-size:9px">YES</span>'+
+            '<div><div class="ppos-lbl">Контракты</div><div class="ppos-val">'+pos.yes_contracts.toFixed(2)+'</div></div>'+
+            '<div><div class="ppos-lbl">Вход / Сейчас</div><div class="ppos-val">'+yEntry+'¢'+(yNow?' / '+yNow+'¢':'')+'</div></div>'+
+            '<div><div class="ppos-lbl">P&L</div><div class="ppos-val '+yPcls+'">'+(yPnl!=null?(yPnl>=0?'+':'')+fmtBal(yPnl):'—')+'</div></div>'+
+            (bidForSell&&!isR
+              ?'<button class="pos-sell-btn" data-mid="'+m.id+'" data-price="'+bidForSell+'" data-cont="'+pos.yes_contracts+'" data-type="1" onclick="portQuickSell(this.dataset.type,this.dataset.mid,+this.dataset.price,+this.dataset.cont)">Продать @ '+bidForSell+'¢</button>'
+              :'<span></span>')+
+          '</div>';
+      }
+
+      // NO position row
+      if(pos.no_contracts>0){
+        var nEntry=Math.round(pos.no_cost/pos.no_contracts*100*10)/10;
+        var nNow=curP!=null?Math.round((100-curP)*10)/10:null;
+        var nPnl=curP!=null?Math.round((pos.no_contracts*(100-curP)/100-pos.no_cost)*100)/100:null;
+        var nPcls=nPnl==null?'flat':nPnl>=0?'up':'dn';
+        var askForClose=m.best_ask;
+        html+=
+          '<div class="ppos">'+
+            '<span class="pos-side no" style="font-size:9px">NO</span>'+
+            '<div><div class="ppos-lbl">Контракты</div><div class="ppos-val">'+pos.no_contracts.toFixed(2)+'</div></div>'+
+            '<div><div class="ppos-lbl">Вход / Сейчас</div><div class="ppos-val">'+nEntry+'¢NO'+(nNow?' / '+nNow+'¢':'')+' NO</div></div>'+
+            '<div><div class="ppos-lbl">P&L</div><div class="ppos-val '+nPcls+'">'+(nPnl!=null?(nPnl>=0?'+':'')+fmtBal(nPnl):'—')+'</div></div>'+
+            (askForClose&&!isR
+              ?'<button class="pos-sell-btn" data-mid="'+m.id+'" data-price="'+askForClose+'" data-cont="'+pos.no_contracts+'" data-type="2" onclick="portQuickSell(this.dataset.type,this.dataset.mid,+this.dataset.price,+this.dataset.cont)">Закрыть @ '+askForClose+'¢</button>'
+              :'<span></span>')+
+          '</div>';
+      }
+
+      // Pending orders for this market
+      var pendingHere=p.pending_orders.filter(function(o){ return o.market_id===m.id; });
+      if(pendingHere.length){
+        html+='<div style="margin-top:6px;font-size:9px;color:var(--text3);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">Открытые ордера</div>';
+        pendingHere.forEach(function(o){
+          var rem=o.contracts-o.filled;
+          var sCl=o.side==='BUY'?'var(--yes)':'var(--no)';
+          var sLbl=o.side==='BUY'?'▲ BUY YES':'▼ SELL YES';
+          html+='<div class="pord-row">'+
+            '<span style="color:'+sCl+';font-family:var(--mono);font-size:10px;font-weight:700">'+sLbl+'</span>'+
+            '<span style="font-family:var(--mono)">@ '+o.price+'¢</span>'+
+            '<span style="color:var(--text3)">'+rem.toFixed(1)+'/'+o.contracts.toFixed(1)+' конт.</span>'+
+             '<button class="ord-cancel" style="margin-left:auto" data-oid="'+o.id+'" onclick="portCancelOrd(this.dataset.oid)">Отменить</button>'+  
+          '</div>';
+        });
+      }
+
+      html+='</div></div>'; // pcard-body + pcard
+    });
+
+    el.innerHTML=html;
+  }catch(e){ el.innerHTML='<div class="empty">Ошибка загрузки</div>'; }
+}
+
+// Portfolio page quick actions
+async function portQuickSell(type, mid, price, contracts){
+  var prevMid=curMid;
+  curMid=mid;
+  await quickSell(type, price, contracts);
+  curMid=prevMid;
+  renderPort();
+}
+async function portCancelOrd(oid){
+  try{
+    var r=await api('/api/order/cancel','POST',{order_id:oid,user_id:curU});
+    toast('Ордер отменён, возврат '+fmtBal(r.refund),'ok');
+    renderPort();
+  }catch(e){ toast(e.message,'err'); }
 }
 
 // ── Activity ──────────────────────────────────────────────────────────
@@ -1681,6 +2062,207 @@ function toast(msg,t){
 }
 
 // ── Event listeners ───────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════
+// SIMULATION ENGINE
+// ══════════════════════════════════════════════════════════════════
+// ── Simulation engine ────────────────────────────────────────────────
+var simTimer = null;
+var simTick  = 0;
+var simCenterPrice = {}; // mid → drifting center price
+var simStats = {ticks:0, trades:0, volume:0};
+
+var BOT_NAMES = ['Робот Феникс','Бот Арбитр','Алго Икс','Трейдер-7','Нейро Плюс','Сигма Бот','Дельта Про','Кванто Икс'];
+
+function simLog(msg){
+  var el=document.getElementById('simLog');
+  if(!el) return;
+  var d=document.createElement('div');
+  d.innerHTML='<span style="color:var(--text3)">'+new Date().toTimeString().slice(0,8)+'</span> '+msg;
+  el.insertBefore(d,el.firstChild);
+  while(el.children.length>60) el.removeChild(el.lastChild);
+}
+
+function updateSimBotList(){
+  var el=document.getElementById('simBotList');
+  if(!el) return;
+  var bots=Object.values(usrs);
+  if(!bots.length){ el.innerHTML='<span>Нет участников</span>'; return; }
+  el.innerHTML=bots.map(function(u){
+    return '<div style="display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px solid var(--b1)">'+
+      '<div class="av" style="background:'+u.color+';width:18px;height:18px;font-size:8px;flex-shrink:0">'+u.name[0]+'</div>'+
+      '<span style="font-size:11px;flex:1">'+u.name+'</span>'+
+      '<span style="font-family:var(--mono);font-size:10px;color:var(--yes)">'+fmtBal(u.balance)+'</span>'+
+    '</div>';
+  }).join('');
+}
+
+function updateSimMarketSel(){
+  var sel=document.getElementById('simMarketSel');
+  if(!sel) return;
+  var cur=sel.value||'ALL';
+  sel.innerHTML='<option value="ALL">🌐 Все открытые</option>';
+  Object.values(mkts).filter(function(m){ return m.status==='open'; }).forEach(function(m){
+    var opt=document.createElement('option');
+    opt.value=m.id; opt.textContent=m.title.slice(0,38);
+    sel.appendChild(opt);
+  });
+  sel.value=cur;
+}
+
+function getSimCenter(mid){
+  if(!simCenterPrice[mid]){
+    var m=mkts[mid];
+    simCenterPrice[mid]=m?(m.last_price||m.mid_price||50):50;
+  }
+  return simCenterPrice[mid];
+}
+
+function updateSimStats(){
+  document.getElementById('statTicks').textContent=simStats.ticks;
+  document.getElementById('statTrades').textContent=simStats.trades;
+  document.getElementById('statVol').textContent='$'+Math.round(simStats.volume);
+}
+
+async function doSimOrder(mid, bot){
+  var m=mkts[mid];
+  if(!m||m.status!=='open') return;
+
+  var useDrift  = document.getElementById('simDrift').checked;
+  var spread    = parseFloat(document.getElementById('simSpread').value)||4;
+  var orderSize = parseFloat(document.getElementById('simOrderSize').value)||80;
+  var aggr      = document.getElementById('simAggression').value;
+  var ob        = m.orderbook||{bids:[],asks:[]};
+
+  // Drift center price
+  var center = getSimCenter(mid);
+  if(useDrift){
+    var target = parseFloat(document.getElementById('simCenterPrice').value)||50;
+    var drift  = (Math.random()-0.48)*2.5 + (target-center)*0.04;
+    center = Math.round(Math.min(94,Math.max(6, center+drift))*10)/10;
+    simCenterPrice[mid]=center;
+    document.getElementById('simCenterLbl').textContent='~'+center+'¢';
+  }
+
+  var isBuy = Math.random()>0.5;
+
+  // Determine price based on aggression
+  var price;
+  if(aggr==='aggressive'){
+    // Market order: cross the spread
+    price = isBuy
+      ? (ob.asks.length ? ob.asks[0].price   : Math.round(center+spread))
+      : (ob.bids.length ? ob.bids[0].price   : Math.round(center-spread));
+  } else if(aggr==='passive'){
+    // Always post inside spread
+    var delta = Math.random()*spread*0.8 + 1;
+    price = isBuy
+      ? Math.round(Math.min(99,Math.max(1,center-delta))*10)/10
+      : Math.round(Math.min(99,Math.max(1,center+delta))*10)/10;
+  } else {
+    // Mixed: 40% aggressive, 60% passive
+    var isAggr = Math.random()<0.4;
+    if(isAggr){
+      price = isBuy
+        ? (ob.asks.length ? ob.asks[0].price : Math.round(center+2))
+        : (ob.bids.length ? ob.bids[0].price : Math.round(center-2));
+    } else {
+      var d2 = Math.random()*spread + 0.5;
+      price = isBuy
+        ? Math.round(Math.min(99,Math.max(1,center-d2))*10)/10
+        : Math.round(Math.min(99,Math.max(1,center+d2))*10)/10;
+    }
+  }
+  price = Math.round(Math.min(99.9,Math.max(0.1,price))*10)/10;
+
+  var maxDollars = Math.min(orderSize, Math.max(bot.balance*0.05, 5)); // max 5% balance OR orderSize
+  var dollars    = Math.round(maxDollars*(0.6+Math.random()*0.4)*100)/100;
+  if(dollars<1||dollars>bot.balance) return;
+
+  try{
+    var d=await api('/api/order','POST',{
+      user_id:bot.id, market_id:mid,
+      side:isBuy?'BUY':'SELL',
+      price:price, dollars:dollars
+    });
+    var sideHtml = isBuy
+      ? '<span style="color:var(--yes)">BUY</span>'
+      : '<span style="color:var(--no)">SELL</span>';
+    var mktName  = mkts[mid]?mkts[mid].title.slice(0,20):'?';
+    var matched  = d.trades>0
+      ? ' <span style="color:var(--yes)">✓ '+d.trades+' сд.</span>'
+      : '';
+    simLog('<b>'+bot.name+'</b> '+sideHtml+' @'+price+'¢ $'+dollars.toFixed(0)
+      +' <span style="color:var(--text3)">'+mktName+'</span>'+matched);
+
+    if(d.trades>0){
+      simStats.trades+=d.trades;
+      simStats.volume+=dollars;
+    }
+  }catch(e){ /* silent */ }
+}
+
+async function simStep(){
+  simStats.ticks++;
+  document.getElementById('simTick').textContent='тик #'+simStats.ticks;
+  updateSimStats();
+
+  // Pick market(s)
+  var selMid=document.getElementById('simMarketSel').value;
+  var openMkts=Object.values(mkts).filter(function(m){ return m.status==='open'; });
+  if(!openMkts.length){
+    simLog('<span style="color:var(--gold)">⚠ Нет открытых рынков</span>');
+    return;
+  }
+  var targetMkts = selMid==='ALL' ? openMkts : openMkts.filter(function(m){ return m.id===selMid; });
+  if(!targetMkts.length) return;
+
+  // Pick random mid
+  var m = targetMkts[Math.floor(Math.random()*targetMkts.length)];
+
+  // Pick bot with enough balance
+  var bots=Object.values(usrs).filter(function(u){ return u.balance>5; });
+  if(!bots.length) return;
+  var bot=bots[Math.floor(Math.random()*bots.length)];
+
+  await doSimOrder(m.id, bot);
+}
+
+async function burstSim(){
+  // Fire 10 orders rapidly for dramatic presentation effect
+  var openMkts=Object.values(mkts).filter(function(m){ return m.status==='open'; });
+  if(!openMkts.length){ toast('Нет открытых рынков','err'); return; }
+  var bots=Object.values(usrs).filter(function(u){ return u.balance>5; });
+  if(!bots.length){ toast('Нет участников','err'); return; }
+  simLog('<span style="color:var(--gold)">⚡ Burst — 10 ордеров!</span>');
+  for(var i=0;i<10;i++){
+    var m=openMkts[Math.floor(Math.random()*openMkts.length)];
+    var bot=bots[Math.floor(Math.random()*bots.length)];
+    await doSimOrder(m.id, bot);
+    await new Promise(function(r){ setTimeout(r,120); });
+  }
+}
+
+function startSim(){
+  if(simTimer) return;
+  simStats={ticks:0,trades:0,volume:0};
+  var interval=Math.max(300,(parseFloat(document.getElementById('simInterval').value)||1.5)*1000);
+  simTimer=setInterval(simStep, interval);
+  document.getElementById('simDot').classList.add('running');
+  document.getElementById('simStatusTxt').textContent='Симуляция запущена';
+  document.getElementById('btnSimStart').style.display='none';
+  document.getElementById('btnSimStop').style.display='';
+  simLog('<span style="color:var(--yes)">▶ Запущена · интервал '+interval+'мс</span>');
+}
+
+function stopSim(){
+  if(simTimer){ clearInterval(simTimer); simTimer=null; }
+  document.getElementById('simDot').classList.remove('running');
+  document.getElementById('simStatusTxt').textContent='Симуляция остановлена';
+  document.getElementById('btnSimStart').style.display='';
+  document.getElementById('btnSimStop').style.display='none';
+  simLog('<span style="color:var(--no)">■ Остановлена · '+simStats.trades+' сделок $'+Math.round(simStats.volume)+' объём</span>');
+}
+
 document.addEventListener('DOMContentLoaded',function(){
   // Dropdown — toggle on pill click, close on outside click
   document.getElementById('upill').addEventListener('click',function(){
@@ -1743,7 +2325,24 @@ document.addEventListener('DOMContentLoaded',function(){
 
   // Tabs
   document.querySelectorAll('.tab').forEach(function(t){
-    t.addEventListener('click',function(){ showTab(this.id.replace('tab-','')); });
+    t.addEventListener('click',function(){
+      showTab(this.id.replace('tab-',''));
+      if(this.id==='tab-simulate'){ updateSimBotList(); updateSimMarketSel(); }
+    });
+  });
+  document.getElementById('btnSimStart').addEventListener('click',startSim);
+  document.getElementById('btnSimStop').addEventListener('click',stopSim);
+  document.getElementById('btnAddBot').addEventListener('click',async function(){
+    var names=BOT_NAMES;
+    var used=Object.values(usrs).map(function(u){ return u.name; });
+    var avail=names.filter(function(n){ return used.indexOf(n)===-1; });
+    var name=avail.length?avail[0]:'Бот-'+Math.floor(Math.random()*999);
+    var bal=parseFloat(document.getElementById('simBotBal').value)||5000;
+    try{
+      var u=await api('/api/users','POST',{name:name,balance:bal});
+      usrs[u.id]=u; updateSimBotList();
+      toast('Бот '+name+' добавлен','ok');
+    }catch(e){ toast(e.message,'err'); }
   });
 
   // Config
