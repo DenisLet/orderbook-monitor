@@ -386,7 +386,7 @@ async def get_portfolio(user_id: str):
     for t in trades.values():
         mid = t["market_id"]
         if mid not in positions:
-            positions[mid] = {"market": markets.get(mid, {}), "yes_contracts": 0, "no_contracts": 0,
+            positions[mid] = {"market": market_snap(mid) if mid in markets else {}, "yes_contracts": 0, "no_contracts": 0,
                               "yes_cost": 0, "no_cost": 0}
         if t["buy_user_id"] == user_id:
             positions[mid]["yes_contracts"] = round(positions[mid]["yes_contracts"] + t["contracts"], 4)
@@ -1447,7 +1447,14 @@ async function loadMyPositions(){
     var pos=p.positions.find(function(x){ return x.market&&x.market.id===curMid; });
     var posList=document.getElementById('myPosList');
     var m=mkts[curMid];
-    var curPrice=m?(m.last_price||m.mid_price):null;
+    // Mark-to-market price: last trade > mid > best available side
+    var curPrice=null;
+    if(m){
+      if(m.last_price!=null)             curPrice=m.last_price;
+      else if(m.best_bid&&m.best_ask)    curPrice=Math.round((m.best_bid+m.best_ask)/2*10)/10;
+      else if(m.best_bid)                curPrice=m.best_bid;
+      else if(m.best_ask)                curPrice=m.best_ask;
+    }
     if(!pos||(!pos.yes_contracts&&!pos.no_contracts)){
       posList.innerHTML='<div style="font-size:10px;color:var(--text3)">Нет позиций</div>';
     } else {
@@ -1866,7 +1873,11 @@ async function renderPort(){
     p.positions.forEach(function(pos){
       var m=pos.market;
       var isR=m.status==='resolved';
-      var curP=m.last_price||(m.best_bid&&m.best_ask?(m.best_bid+m.best_ask)/2:null);
+      var curP=null;
+      if(m.last_price!=null)           curP=m.last_price;
+      else if(m.best_bid&&m.best_ask)  curP=Math.round((m.best_bid+m.best_ask)/2*10)/10;
+      else if(m.best_bid)              curP=m.best_bid;
+      else if(m.best_ask)              curP=m.best_ask;
       var invested=pos.yes_cost+pos.no_cost;
 
       // P&L calculation
@@ -1909,9 +1920,11 @@ async function renderPort(){
       // YES position row
       if(pos.yes_contracts>0){
         var yEntry=Math.round(pos.yes_cost/pos.yes_contracts*100*10)/10;
-        var yNow=curP!=null?Math.round(curP*10)/10:null;
-        var yPnl=curP!=null?Math.round((pos.yes_contracts*curP/100-pos.yes_cost)*100)/100:null;
-        var yPcls=yPnl==null?'flat':yPnl>=0?'up':'dn';
+        var yNow=isR?(m.outcome==='YES'?100:0):(curP!=null?Math.round(curP*10)/10:null);
+        var yPnl=isR
+          ? Math.round((m.outcome==='YES' ? pos.yes_contracts*(1-comm) - pos.yes_cost : -pos.yes_cost)*100)/100
+          : (curP!=null?Math.round((pos.yes_contracts*curP/100-pos.yes_cost)*100)/100:null);
+        var yPcls=yPnl==null?'flat':yPnl>0.01?'up':yPnl<-0.01?'dn':'flat';
         var bidForSell=m.best_bid;
         html+=
           '<div class="ppos">'+
@@ -1928,15 +1941,17 @@ async function renderPort(){
       // NO position row
       if(pos.no_contracts>0){
         var nEntry=Math.round(pos.no_cost/pos.no_contracts*100*10)/10;
-        var nNow=curP!=null?Math.round((100-curP)*10)/10:null;
-        var nPnl=curP!=null?Math.round((pos.no_contracts*(100-curP)/100-pos.no_cost)*100)/100:null;
-        var nPcls=nPnl==null?'flat':nPnl>=0?'up':'dn';
+        var nNow=isR?(m.outcome==='NO'?100:0):( curP!=null?Math.round((100-curP)*10)/10:null );
+        var nPnl=isR
+          ? Math.round((m.outcome==='NO' ? pos.no_contracts*(1-comm) - pos.no_cost : -pos.no_cost)*100)/100
+          : (curP!=null?Math.round((pos.no_contracts*(100-curP)/100-pos.no_cost)*100)/100:null);
+        var nPcls=nPnl==null?'flat':nPnl>0.01?'up':nPnl<-0.01?'dn':'flat';
         var askForClose=m.best_ask;
         html+=
           '<div class="ppos">'+
             '<span class="pos-side no" style="font-size:9px">NO</span>'+
             '<div><div class="ppos-lbl">Контракты</div><div class="ppos-val">'+pos.no_contracts.toFixed(2)+'</div></div>'+
-            '<div><div class="ppos-lbl">Вход / Сейчас</div><div class="ppos-val">'+nEntry+'¢NO'+(nNow?' / '+nNow+'¢':'')+' NO</div></div>'+
+            '<div><div class="ppos-lbl">Вход / Сейчас</div><div class="ppos-val">'+nEntry+'¢ NO'+(nNow?' / '+nNow+'¢ NO':'')+'</div></div>'+
             '<div><div class="ppos-lbl">P&L</div><div class="ppos-val '+nPcls+'">'+(nPnl!=null?(nPnl>=0?'+':'')+fmtBal(nPnl):'—')+'</div></div>'+
             (askForClose&&!isR
               ?'<button class="pos-sell-btn" data-mid="'+m.id+'" data-price="'+askForClose+'" data-cont="'+pos.no_contracts+'" data-type="2" onclick="portQuickSell(this.dataset.type,this.dataset.mid,+this.dataset.price,+this.dataset.cont)">Закрыть @ '+askForClose+'¢</button>'
@@ -2153,8 +2168,10 @@ async function doSimOrder(mid, bot){
       ? (ob.asks.length ? ob.asks[0].price   : Math.round(center+spread))
       : (ob.bids.length ? ob.bids[0].price   : Math.round(center-spread));
   } else if(aggr==='passive'){
-    // Always post inside spread
-    var delta = Math.random()*spread*0.8 + 1;
+    // Post away from mid — BUY below center, SELL above center
+    // Min offset = 1¢ for BUY, 1¢ for SELL → guaranteed spread ≥ 2¢
+    var minOff = 1.0;
+    var delta = Math.random()*spread*0.8 + minOff;
     price = isBuy
       ? Math.round(Math.min(99,Math.max(1,center-delta))*10)/10
       : Math.round(Math.min(99,Math.max(1,center+delta))*10)/10;
@@ -2166,7 +2183,8 @@ async function doSimOrder(mid, bot){
         ? (ob.asks.length ? ob.asks[0].price : Math.round(center+2))
         : (ob.bids.length ? ob.bids[0].price : Math.round(center-2));
     } else {
-      var d2 = Math.random()*spread + 0.5;
+      // Passive part: min 1¢ offset each side → spread ≥ 2¢
+      var d2 = Math.random()*spread + 1.0;
       price = isBuy
         ? Math.round(Math.min(99,Math.max(1,center-d2))*10)/10
         : Math.round(Math.min(99,Math.max(1,center+d2))*10)/10;
